@@ -1,10 +1,6 @@
 package com.sml.services.rest
 
-import akka.actor.{ActorLogging, ActorRefFactory, Actor}
-import spray.routing.Route
-import com.sml.services.protocols.AppointmentProtocol.Appointment
-import spray.http.{MediaTypes, MediaType}
-import spray.routing.{HttpServiceActor, HttpService}
+import akka.actor.Actor
 
 /**
  * Actor class of GatewayService
@@ -13,6 +9,7 @@ import spray.routing.{HttpServiceActor, HttpService}
  */
 class GatewayServiceActor extends Actor with GatewayService {
   implicit def actorRefFactory = context
-  override def receive = runRoute(routes)
+
+  def receive = runRoute(appointmentRouter)
 }
 
