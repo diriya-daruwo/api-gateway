@@ -11,6 +11,7 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-actor"      % akkaVersion,
     "io.spray"          %% "spray-can"       % sprayVersion,
     "io.spray"          %% "spray-routing"   % sprayVersion,
+    "io.spray"          %% "spray-client"    % sprayVersion,
     "io.spray"          %% "spray-json"      % "1.3.1",
     "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion
   )
