@@ -1,5 +1,6 @@
 package com.sml.apigw.rest
 
+import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.sml.apigw.auth.BasicAuthenticator
 import com.sml.apigw.protocols.Appointment
@@ -8,6 +9,17 @@ import spray.httpx.SprayJsonSupport._
 import spray.routing.HttpService
 
 import scala.concurrent.ExecutionContext.Implicits.global
+
+/**
+ * Actor class of GatewayService
+ *
+ * @author eranga herath(erangaeb@gmail.com)
+ */
+class GatewayServiceActor extends Actor with GatewayService {
+  implicit def actorRefFactory = context
+
+  def receive = runRoute(appointmentRouter)
+}
 
 /**
  * API gateway service, define REST routers in here

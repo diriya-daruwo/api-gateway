@@ -2,7 +2,7 @@ package com.sml.apigw.services
 
 import akka.actor.Actor
 import akka.event.Logging
-import com.sml.apigw.protocols.{Elevation, GoogleElevationApiResult}
+import com.sml.apigw.protocols.{Appointment, Elevation, GoogleElevationApiResult}
 import spray.client.pipelining._
 import spray.httpx.SprayJsonSupport
 import spray.routing.RequestContext
@@ -35,6 +35,7 @@ class ElevationService(requestContext: RequestContext) extends Actor {
     log.info("Requesting elevation long: {}, lat: {}", long, lat)
     import SprayJsonSupport._
     import com.sml.apigw.protocols.ElevationProtocol._
+    import com.sml.apigw.protocols.AppointmentProtocol._
 
     val pipeline = sendReceive ~> unmarshal[GoogleElevationApiResult[Elevation]]
 
@@ -45,7 +46,8 @@ class ElevationService(requestContext: RequestContext) extends Actor {
     responseFuture onComplete {
       case Success(GoogleElevationApiResult(_, Elevation(_, elevation) :: _)) =>
         log.info("The elevation is: {} m", elevation)
-        requestContext.complete(elevation.toString)
+        //requestContext.complete(elevation.toString)
+        requestContext.complete(Appointment("2", "pagero"))
       case Failure(error) =>
         log.error("Error occurs: ", error)
         requestContext.complete(error)
