@@ -13,8 +13,8 @@ class SprayApiDemoServiceActor extends Actor with SprayApiDemoService {
 
 trait SprayApiDemoService extends HttpService {
   val sprayApiDemoRoute =
-    pathPrefix("api") {
-      path("ElevationService" / DoubleNumber / DoubleNumber) { (long, lat) =>
+    pathPrefix("api/v1") {
+      path("appointments" / DoubleNumber / DoubleNumber) { (long, lat) =>
         requestContext =>
           val elevationService = actorRefFactory.actorOf(Props(new ElevationService(requestContext)))
           elevationService ! ElevationService.Process(long, lat)
