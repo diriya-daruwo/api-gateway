@@ -1,4 +1,4 @@
-package com.sml.services.config
+package com.sml.apigw.config
 
 import com.typesafe.config.ConfigFactory
 

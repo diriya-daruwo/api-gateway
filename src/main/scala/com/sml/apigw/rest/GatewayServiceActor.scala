@@ -1,4 +1,4 @@
-package com.sml.services.rest
+package com.sml.apigw.rest
 
 import akka.actor.Actor
 

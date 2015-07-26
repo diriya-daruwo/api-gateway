@@ -1,8 +1,8 @@
-package com.sml.services.rest
+package com.sml.apigw.rest
 
 import akka.event.slf4j.SLF4JLogging
-import com.sml.services.auth.BasicAuthenticator
-import com.sml.services.protocols.Appointment
+import com.sml.apigw.auth.BasicAuthenticator
+import com.sml.apigw.protocols.Appointment
 import spray.http.MediaTypes
 import spray.httpx.SprayJsonSupport._
 import spray.routing.HttpService
@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 trait GatewayService extends HttpService with BasicAuthenticator with SLF4JLogging {
 
-  import com.sml.services.protocols.AppointmentProtocol._
+  import com.sml.apigw.protocols.AppointmentProtocol._
 
   val appointmentRouter =
     pathPrefix("api" / "v1") {
@@ -36,6 +36,7 @@ trait GatewayService extends HttpService with BasicAuthenticator with SLF4JLoggi
             entity(as[Appointment]) { appointment =>
               complete {
                 Console.println("created")
+                Console.println(appointment.patient)
                 log.debug("POST bill: %s".format(appointment))
                 "POST bill"
               }

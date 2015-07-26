@@ -1,4 +1,4 @@
-package com.sml.services.protocols
+package com.sml.apigw.protocols
 
 import spray.json.DefaultJsonProtocol
 

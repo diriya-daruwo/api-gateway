@@ -1,4 +1,4 @@
-package com.sml.services.auth
+package com.sml.apigw.auth
 
 import spray.routing.authentication.{BasicAuth, UserPass}
 import spray.routing.directives.AuthMagnet
