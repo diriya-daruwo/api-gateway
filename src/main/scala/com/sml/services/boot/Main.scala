@@ -1,9 +1,9 @@
 package com.sml.services.boot
 
+import akka.actor.{ActorSystem, Props}
+import akka.io.IO
 import com.sml.services.config.Configuration
 import com.sml.services.rest.GatewayServiceActor
-import akka.io.IO
-import akka.actor.{ActorSystem, Props}
 import spray.can.Http
 
 object Main extends App with Configuration {
