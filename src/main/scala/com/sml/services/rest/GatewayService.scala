@@ -31,6 +31,15 @@ trait GatewayService extends HttpService with BasicAuthenticator with SLF4JLoggi
                 l
               }
             }
+          } ~
+          post {
+            entity(as[Appointment]) { appointment =>
+              complete {
+                Console.println("created")
+                log.debug("POST bill: %s".format(appointment))
+                "POST bill"
+              }
+            }
           }
         }
       }
