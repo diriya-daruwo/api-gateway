@@ -18,7 +18,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class GatewayServiceActor extends Actor with GatewayService {
   implicit def actorRefFactory = context
 
-  def receive = runRoute(appointmentRouter)
+  def receive = runRoute(appointmentRouter ~ prescriptionRouter)
 }
 
 /**
@@ -44,19 +44,74 @@ trait GatewayService extends HttpService with BasicAuthenticator with SLF4JLoggi
               }
             }
           } ~
-          post {
-            entity(as[Appointment]) { appointment =>
+            post {
+              entity(as[Appointment]) { appointment =>
+                complete {
+                  Console.println("created")
+                  Console.println(appointment.patient)
+                  log.debug("POST bill: %s".format(appointment))
+                  "POST bill"
+                }
+              }
+            }
+        }
+      } ~
+        path("appointments" / LongNumber) { appointmentId =>
+          authenticate(basicAuthenticator) { user =>
+            get {
               complete {
-                Console.println("created")
-                Console.println(appointment.patient)
-                log.debug("POST bill: %s".format(appointment))
-                "POST bill"
+                // TODO get appointments via appointment service
+                // TODO delegate to actor
+                //log.debug("GET all bills: %l".format(appointmentId))
+                val b = Appointment("12", "Pagero")
+                b
               }
             }
           }
         }
-      }
+    }
+
+  val prescriptionRouter =
+    pathPrefix("api" / "v1") {
+      path("prescriptions") {
+        authenticate(basicAuthenticator) { user =>
+          get {
+            respondWithMediaType(MediaTypes.`application/json`) {
+              complete {
+                // TODO get get prescriptions via prescription service
+                // TODO delegate to actor
+                log.debug("GET all bills: %s".format(user.username))
+                val b = Appointment("12", "Pagero")
+                val l = (b, b, b, b)
+                l
+              }
+            }
+          } ~
+            post {
+              entity(as[Appointment]) { appointment =>
+                complete {
+                  Console.println("created")
+                  Console.println(appointment.patient)
+                  log.debug("POST bill: %s".format(appointment))
+                  "POST bill"
+                }
+              }
+            }
+        }
+      } ~
+        path("prescriptions" / LongNumber) { appointmentId =>
+          authenticate(basicAuthenticator) { user =>
+            get {
+              complete {
+                // TODO get prescription via prescription service
+                // TODO delegate to actor
+                //log.debug("GET all bills: %l".format(appointmentId))
+                val b = Appointment("12", "Pagero")
+                b
+              }
+            }
+          }
+        }
     }
 
 }
-

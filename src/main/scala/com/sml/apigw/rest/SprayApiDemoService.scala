@@ -16,9 +16,9 @@ class SprayApiDemoServiceActor extends Actor with SprayApiDemoService {
 
 trait SprayApiDemoService extends HttpService with BasicAuthenticator {
   val sprayApiDemoRoute =
-    pathPrefix("api") {
+    pathPrefix("api" / "v1") {
       authenticate(basicAuthenticator) { user =>
-        path("ElevationService" / DoubleNumber / DoubleNumber) { (long, lat) =>
+        path("appointments" / DoubleNumber / DoubleNumber) { (long, lat) =>
           requestContext =>
             val elevationService = actorRefFactory.actorOf(Props(new ElevationService(requestContext)))
             elevationService ! ElevationService.Process(long, lat)

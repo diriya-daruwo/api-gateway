@@ -13,10 +13,10 @@ object Main extends App with Configuration {
   val log = Logging(system, getClass)
 
   // create and start rest service actor
-  //val restService = system.actorOf(Props[GatewayServiceActor], "gateway-rest")
-  val demoService = system.actorOf(Props[SprayApiDemoServiceActor], "spray-service")
+  val restService = system.actorOf(Props[GatewayServiceActor], "gateway-rest")
+  //val demoService = system.actorOf(Props[SprayApiDemoServiceActor], "spray-service")
 
   // start HTTP server with rest service actor as a handler
-  //IO(Http) ! Http.Bind(restService, serviceHost, servicePort)
-  IO(Http) ! Http.Bind(demoService, serviceHost, servicePort)
+  IO(Http) ! Http.Bind(restService, serviceHost, servicePort)
+  //IO(Http) ! Http.Bind(demoService, serviceHost, servicePort)
 }
