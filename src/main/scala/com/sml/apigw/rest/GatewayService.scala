@@ -35,9 +35,6 @@ trait GatewayService extends HttpService with SLF4JLogging {
 
   implicit def executionContext = actorRefFactory.dispatcher
 
-  //implicit val timeout = Timeout(5 seconds)
-  //val worker = actorRefFactory.actorOf(Props[WorkerActor], "worker")
-
   val router =
     pathPrefix("api" / "v1") {
       path("appointments") {
@@ -63,12 +60,6 @@ trait GatewayService extends HttpService with SLF4JLogging {
           }
         }
     }
-
-  //  def getAppointments(): Future[Appointment] = {
-  //    val f: Future[App] = Future {
-  //      new Appointment("3", "3")
-  //    }
-  //  }
 
   def getAppointments() = Future[Appointment] {
     // TODO call for appointment service
