@@ -1,14 +1,17 @@
 package com.sml.apigw.rest
 
-import akka.actor.Actor
+import akka.actor.{Actor, Props}
 import akka.event.slf4j.SLF4JLogging
-import com.sml.apigw.auth.BasicAuthenticator
+import akka.pattern.ask
+import akka.util.Timeout
 import com.sml.apigw.protocols.{Appointment, Prescription}
-import spray.http.MediaTypes
-import spray.httpx.SprayJsonSupport._
+import com.sml.apigw.services.WorkerActor
+import com.sml.apigw.services.WorkerActor.{GetPrescriptions, GetAppointment}
+import spray.json._
 import spray.routing.HttpService
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 /**
  * Actor class of GatewayService
@@ -18,101 +21,63 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class GatewayServiceActor extends Actor with GatewayService {
   implicit def actorRefFactory = context
 
-  def receive = runRoute(appointmentRouter ~ prescriptionRouter)
+  def receive = runRoute(router)
 }
 
 /**
  * API gateway service, define REST routers in here
  */
-trait GatewayService extends HttpService with BasicAuthenticator with SLF4JLogging {
+trait GatewayService extends HttpService with SLF4JLogging {
 
+  import spray.httpx.SprayJsonSupport._
   import com.sml.apigw.protocols.AppointmentProtocol._
   import com.sml.apigw.protocols.PrescriptionProtocol._
 
-  val appointmentRouter =
+  implicit def executionContext = actorRefFactory.dispatcher
+
+  //implicit val timeout = Timeout(5 seconds)
+  //val worker = actorRefFactory.actorOf(Props[WorkerActor], "worker")
+
+  val router =
     pathPrefix("api" / "v1") {
       path("appointments") {
-        authenticate(basicAuthenticator) { user =>
-          get {
-            respondWithMediaType(MediaTypes.`application/json`) {
-              complete {
-                // TODO get appointments via appointment service
-                // TODO delegate to actor
-                log.debug("GET all bills: %s".format(user.username))
-                val b = Appointment("12", "Pagero")
-                val l = (b, b, b, b)
-                l
-              }
-            }
-          } ~
-            post {
-              entity(as[Appointment]) { appointment =>
-                complete {
-                  Console.println("created")
-                  Console.println(appointment.patient)
-                  log.debug("POST bill: %s".format(appointment))
-                  "POST bill"
-                }
-              }
-            }
+        get {
+          //val appointmentService = actorRefFactory.actorOf(Props(new AppointmentService(requestContext)))
+          //appointmentService ! AppointmentService.Get()
+          complete {
+            //(worker ? GetAppointment).mapTo[Appointment]
+            getAppointments()
+          }
         }
       } ~
-        path("appointments" / LongNumber) { appointmentId =>
-          authenticate(basicAuthenticator) { user =>
-            get {
-              complete {
-                // TODO get appointments via appointment service
-                // TODO delegate to actor
-                //log.debug("GET all bills: %l".format(appointmentId))
-                val b = Appointment("12", "Pagero")
-                b
-              }
+        path("prescriptions") {
+          get {
+            //val appointmentService = actorRefFactory.actorOf(Props(new AppointmentService(requestContext)))
+            //appointmentService ! AppointmentService.Get()
+            //complete {
+            //  (worker ? GetPrescriptions).mapTo[Prescription]
+            //}
+            complete {
+              getPrescriptions()
             }
           }
         }
     }
 
-  val prescriptionRouter =
-    pathPrefix("api" / "v1") {
-      path("prescriptions") {
-        authenticate(basicAuthenticator) { user =>
-          get {
-            respondWithMediaType(MediaTypes.`application/json`) {
-              complete {
-                // TODO get get prescriptions via prescription service
-                // TODO delegate to actor
-                log.debug("GET all bills: %s".format(user.username))
-                val b = Prescription("12", "1", "2")
-                val l = (b, b, b, b)
-                l
-              }
-            }
-          } ~
-            post {
-              entity(as[Prescription]) { prescription =>
-                complete {
-                  Console.println("created")
-                  Console.println(prescription.patient)
-                  log.debug("POST bill: %s".format(prescription))
-                  "POST bill"
-                }
-              }
-            }
-        }
-      } ~
-        path("prescriptions" / LongNumber) { prescriptionId =>
-          authenticate(basicAuthenticator) { user =>
-            get {
-              complete {
-                // TODO get prescription via prescription service
-                // TODO delegate to actor
-                //log.debug("GET all bills: %l".format(appointmentId))
-                val b = Prescription("12", "Pagero", "jaaaa")
-                b
-              }
-            }
-          }
-        }
-    }
+  //  def getAppointments(): Future[Appointment] = {
+  //    val f: Future[App] = Future {
+  //      new Appointment("3", "3")
+  //    }
+  //  }
 
+  def getAppointments() = Future[Appointment] {
+    // TODO call for appointment service
+    new Appointment("1", "2")
+  }
+
+  def getPrescriptions() = Future[Prescription] {
+    // TODO call for prescription service
+    new Prescription("1", "2", "34")
+  }
 }
+
