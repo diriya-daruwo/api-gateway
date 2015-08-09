@@ -21,6 +21,10 @@ class GatewayServiceActor extends Actor with GatewayService {
 
 /**
  * API gateway service, define REST routers in here
+ * Following are the available endpoints
+ * 1. api/v1/appointments
+ * 2. api/v1/prescriptions
+ * 3. api/v1/users
  */
 trait GatewayService extends HttpService with SLF4JLogging {
 
@@ -33,10 +37,7 @@ trait GatewayService extends HttpService with SLF4JLogging {
       path("appointments") {
         import com.sml.apigw.protocols.AppointmentProtocol._
         get {
-          //val appointmentService = actorRefFactory.actorOf(Props(new AppointmentService(requestContext)))
-          //appointmentService ! AppointmentService.Get()
           complete {
-            //(worker ? GetAppointment).mapTo[Appointment]
             getAppointments()
           }
         } ~
@@ -51,11 +52,6 @@ trait GatewayService extends HttpService with SLF4JLogging {
         path("prescriptions") {
           import com.sml.apigw.protocols.PrescriptionProtocol._
           get {
-            //val appointmentService = actorRefFactory.actorOf(Props(new AppointmentService(requestContext)))
-            //appointmentService ! AppointmentService.Get()
-            //complete {
-            //  (worker ? GetPrescriptions).mapTo[Prescription]
-            //}
             complete {
               getPrescriptions()
             }
@@ -71,11 +67,6 @@ trait GatewayService extends HttpService with SLF4JLogging {
         path("users") {
           import com.sml.apigw.protocols.UserProtocol._
           get {
-            //val appointmentService = actorRefFactory.actorOf(Props(new AppointmentService(requestContext)))
-            //appointmentService ! AppointmentService.Get()
-            //complete {
-            //  (worker ? GetPrescriptions).mapTo[Prescription]
-            //}
             complete {
               getUsers()
             }
@@ -93,13 +84,13 @@ trait GatewayService extends HttpService with SLF4JLogging {
   def getAppointments() = Future[List[Appointment]] {
     // TODO call for appointment service
     val b = new Appointment("1", "2")
-    val l = List(b, b, b, b)
-    l
+    List(b, b, b, b)
   }
 
-  def getPrescriptions() = Future[Prescription] {
+  def getPrescriptions() = Future[List[Prescription]] {
     // TODO call for prescription service
-    new Prescription("1", "2", "34")
+    val p = new Prescription("1", "2", "34")
+    List(p, p, p)
   }
 
   def getUsers() = Future[List[User]] {
