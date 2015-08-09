@@ -12,7 +12,7 @@ libraryDependencies ++= {
     "io.spray"          %% "spray-can"       % sprayVersion,
     "io.spray"          %% "spray-routing"   % sprayVersion,
     "io.spray"          %% "spray-client"    % sprayVersion,
-    "io.spray"          %% "spray-json"      % "1.3.1",
+    "io.spray"          %% "spray-json"      % sprayVersion,
     "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion
   )
 }
@@ -21,3 +21,5 @@ resolvers ++= Seq(
   "Spray repository" at "http://repo.spray.io",
   "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
+
+
