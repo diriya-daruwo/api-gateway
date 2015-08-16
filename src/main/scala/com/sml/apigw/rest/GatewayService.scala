@@ -1,12 +1,16 @@
 package com.sml.apigw.rest
 
-import akka.actor.Actor
+import akka.actor.{Props, Actor}
 import akka.event.slf4j.SLF4JLogging
-import com.sml.apigw.protocols.{Appointment, Prescription, User}
+import akka.event.Logging
+import com.sml.apigw.protocols._
+import com.sml.apigw.services.DeviceService
+import spray.client.pipelining._
 import spray.http._
 import spray.routing.HttpService
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 /**
  * Actor class of GatewayService
@@ -66,10 +70,9 @@ trait GatewayService extends HttpService with SLF4JLogging {
         } ~
         path("users") {
           import com.sml.apigw.protocols.UserProtocol._
-          get {
-            complete {
-              getUsers()
-            }
+          get { requestContext =>
+            val deviceService = actorRefFactory.actorOf(Props(new DeviceService(requestContext)))
+            deviceService ! "GET"
           } ~
             post {
               entity(as[User]) { user =>
@@ -94,7 +97,22 @@ trait GatewayService extends HttpService with SLF4JLogging {
   }
 
   def getUsers() = Future[List[User]] {
-    // TODO call for user service
+    import com.sml.apigw.protocols.DeviceProtocol._
+    val pipeline = (
+      addHeader("Authorization", "Basic YWRtaW46YWRtaW4=")
+        ~> sendReceive
+        ~> unmarshal[DeviceResponse]
+      )
+
+    val response = pipeline {
+      Get("http://10.2.2.132:8080/api/v1/devices/?format=json") ~> addCredentials(BasicHttpCredentials("eranga", "123"))
+    }
+
+    response.onComplete {
+      case Success(resp) => print(resp)
+      case Failure(e) => print(e.toString)
+    }
+
     val u = new User("1", "2", "34", "admin")
     List(u, u, u)
   }

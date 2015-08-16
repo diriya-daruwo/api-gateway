@@ -13,7 +13,8 @@ libraryDependencies ++= {
     "io.spray"          %% "spray-routing"   % sprayVersion,
     "io.spray"          %% "spray-client"    % sprayVersion,
     "io.spray"          %% "spray-json"      % sprayVersion,
-    "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion
+    "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion,
+    "net.virtual-void"  %% "json-lenses"     % "0.6.0"
   )
 }
 
