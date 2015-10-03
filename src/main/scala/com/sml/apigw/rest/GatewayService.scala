@@ -4,7 +4,7 @@ import akka.actor.{Props, Actor}
 import akka.event.slf4j.SLF4JLogging
 import akka.event.Logging
 import com.sml.apigw.protocols._
-import com.sml.apigw.services.DeviceService
+import com.sml.apigw.services.{GetUser, GetUsers, UserService, DeviceService}
 import spray.client.pipelining._
 import spray.http._
 import spray.routing.HttpService
@@ -71,8 +71,10 @@ trait GatewayService extends HttpService with SLF4JLogging {
         path("users") {
           import com.sml.apigw.protocols.UserProtocol._
           get { requestContext =>
-            val deviceService = actorRefFactory.actorOf(Props(new DeviceService(requestContext)))
-            deviceService ! "GET"
+            //val deviceService = actorRefFactory.actorOf(Props(new DeviceService(requestContext)))
+            //deviceService ! "GET"
+            val userService = actorRefFactory.actorOf(Props(new UserService(requestContext)))
+            userService ! GetUsers()
           } ~
             post {
               entity(as[User]) { user =>
@@ -81,6 +83,12 @@ trait GatewayService extends HttpService with SLF4JLogging {
                 }
               }
             }
+        } ~
+        path("users" / IntNumber) { user_id =>
+          get { requestContext =>
+            val userService = actorRefFactory.actorOf(Props(new UserService(requestContext)))
+            userService ! GetUser(user_id)
+          }
         }
     }
 
