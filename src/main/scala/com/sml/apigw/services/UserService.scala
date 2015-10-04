@@ -89,7 +89,6 @@ class UserService(requestContext: RequestContext) extends Actor {
             requestContext.complete(e)
           else
             requestContext.complete("Error")
-
       }
     }
   }

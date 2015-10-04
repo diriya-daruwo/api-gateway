@@ -43,33 +43,22 @@ trait GatewayService extends HttpService with SLF4JLogging {
     pathPrefix("api" / "v1") {
       path("appointments") {
         import com.sml.apigw.protocols.AppointmentProtocol._
-        get {
-          complete {
-            getAppointments()
-          }
+        get { requestContext =>
+          val appointmentService = actorRefFactory.actorOf(Props(new AppointmentService(requestContext)))
+          appointmentService ! GetAppointments()
         } ~
           post {
-            entity(as[Appointment]) { appointment =>
-              complete {
-                StatusCodes.Created -> createAppointment(appointment)
-              }
+            entity(as[Appointment]) { appointment => requestContext =>
+              val appointmentService = actorRefFactory.actorOf(Props(new AppointmentService(requestContext)))
+              appointmentService ! CreateAppointment(appointment)
             }
           }
       } ~
-        path("prescriptions") {
-          import com.sml.apigw.protocols.PrescriptionProtocol._
-          get {
-            complete {
-              getPrescriptions()
-            }
-          } ~
-            post {
-              entity(as[Prescription]) { prescription =>
-                complete {
-                  StatusCodes.Created -> createPrescription(prescription)
-                }
-              }
-            }
+        path("appointments" / IntNumber) { appointmentId =>
+          get { requestContext =>
+            val appointmentService = actorRefFactory.actorOf(Props(new AppointmentService(requestContext)))
+            appointmentService ! GetAppointment(appointmentId)
+          }
         } ~
         path("users") {
           import com.sml.apigw.protocols.SmlUserProtocol._
@@ -91,90 +80,5 @@ trait GatewayService extends HttpService with SLF4JLogging {
           }
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-  def getAppointments() = Future[List[Appointment]] {
-    // TODO call for appointment service
-    val b = new Appointment("1", "2")
-    List(b, b, b, b)
-  }
-
-  def getPrescriptions() = Future[List[Prescription]] {
-    // TODO call for prescription service
-    val p = new Prescription("1", "2", "34")
-    List(p, p, p)
-  }
-
-  def getUsers() = Future[List[User]] {
-    import com.sml.apigw.protocols.DeviceProtocol._
-    val pipeline = (
-      addHeader("Authorization", "Basic YWRtaW46YWRtaW4=")
-        ~> sendReceive
-        ~> unmarshal[DeviceResponse]
-      )
-
-    val response = pipeline {
-      Get("http://10.2.2.132:8080/api/v1/devices/?format=json") ~> addCredentials(BasicHttpCredentials("eranga", "123"))
-    }
-
-    response.onComplete {
-      case Success(resp) => print(resp)
-      case Failure(e) => print(e.toString)
-    }
-
-    val u = new User("1", "2", "34", "admin")
-    List(u, u, u)
-  }
-
-  def createAppointment(appointment: Appointment) = Future[String] {
-    // TODO call for appointment service to create Appointment
-    "created"
-  }
-
-  def createPrescription(prescription: Prescription) = Future[String] {
-    // TODO call for prescription service to create Prescription
-    "created"
-  }
-
-  def createUser(user: SmlUser) = Future[String] {
-    import com.sml.apigw.protocols.SmlUserProtocol._
-
-    // TODO call for user service to create User
-    println(user.name)
-    println(user.email)
-    println(user.id)
-
-    val pipeline = sendReceive
-
-    val response = pipeline {
-      Post("http://10.2.2.132:9000/api/v1/users/", user)
-    }
-
-    response.onComplete {
-      case Success(resp) =>
-        "created"
-      case Failure(e) =>
-        "fail"
-      case _ =>
-        "fail"
-    }
-
-    "success"
-  }
-
-
-
-
 }
 

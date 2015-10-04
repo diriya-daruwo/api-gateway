@@ -46,8 +46,7 @@ class ElevationService(requestContext: RequestContext) extends Actor {
     responseFuture onComplete {
       case Success(GoogleElevationApiResult(_, Elevation(_, elevation) :: _)) =>
         log.info("The elevation is: {} m", elevation)
-        //requestContext.complete(elevation.toString)
-        requestContext.complete(Appointment("2", "pagero"))
+        requestContext.complete(elevation.toString)
       case Failure(error) =>
         log.error("Error occurs: ", error)
         requestContext.complete(error)

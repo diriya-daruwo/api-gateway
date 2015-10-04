@@ -1,49 +1,116 @@
 package com.sml.apigw.services
 
-import akka.actor.Actor
+
+import akka.actor.{Actor, ReceiveTimeout}
 import akka.event.Logging
 import com.sml.apigw.protocols.Appointment
+import org.slf4j.LoggerFactory
+import spray.client.pipelining._
+import spray.http._
 import spray.routing.RequestContext
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 import spray.httpx.SprayJsonSupport._
 
 
-/**
- * Created by eranga on 8/6/15.
- */
-object AppointmentService {
+case class GetAppointments()
 
-  case class GetAppointment()
+case class GetAppointment(id: Int)
 
-  case class CreateAppointment(appointment: Appointment)
-
-}
+case class CreateAppointment(appointment: Appointment)
 
 class AppointmentService(requestContext: RequestContext) extends Actor {
 
-  import AppointmentService._
-
   implicit val system = context.system
-  val log = Logging(system, getClass)
+  import system.dispatcher
+
+  val logger = LoggerFactory.getLogger(this.getClass().getName())
+  context.setReceiveTimeout(30 seconds)
 
   def receive = {
-    case Get() =>
-      // get request to appointment service
-      getAllAppointments()
-      context.stop(self)
-    case _ =>
-      val b = Appointment("12", "Pagero")
-      b
+    case GetAppointments() =>
+      context.setReceiveTimeout(60 seconds)
+      getAppointments()
+    case GetAppointment(id) =>
+      context.setReceiveTimeout(60 seconds)
+      getAppointment(id)
+    case CreateAppointment(appointment) =>
+      context.setReceiveTimeout(60 seconds)
+      createAppointment(appointment)
+    case ReceiveTimeout =>
+      context.setReceiveTimeout(Duration.Undefined)
+      logger.error("Timed out")
+    case msg =>
+      logger.error("Invalid message received", msg)
   }
 
-  def getAllAppointments() = {
+  def getAppointments() = {
     import com.sml.apigw.protocols.AppointmentProtocol._
 
-    val b = Appointment("12", "Pagero")
+//    val pipeline = sendReceive ~> unmarshal[Appointment]
+//
+//    val response: Future[Appointment] = pipeline {
+//      Get("http://10.2.2.132:7000/api/v1/appointments/?format=json")
+//    }
+//
+//    response.onComplete {
+//      case Success(appointmentResponse) =>
+//        logger.debug(appointmentResponse.toString)
+//        requestContext.complete(StatusCodes.Created -> appointmentResponse)
+//      case Failure(e) =>
+//        logger.error(e.toString)
+//        requestContext.complete(e)
+//    }
+
+    // Return sample response
+    val b = Appointment(Some("12"), "2", "3", "2013-12-23")
     val l = (b, b, b, b)
     requestContext.complete(l)
   }
 
-  def createAppointment(appointment: Appointment) = {
+  def getAppointment(id: Int) = {
+    import com.sml.apigw.protocols.AppointmentProtocol._
 
+//    val pipeline = sendReceive ~> unmarshal[Appointment]
+//
+//    val response: Future[Appointment] = pipeline {
+//      Get(s"http://10.2.2.132:7000/api/v1/appointments/$id/?format=json")
+//    }
+//
+//    response.onComplete {
+//      case Success(appointment) =>
+//        logger.debug(appointment.toString)
+//        requestContext.complete(StatusCodes.Created -> appointment)
+//      case Failure(e) =>
+//        logger.error(e.toString)
+//        requestContext.complete(e)
+//    }
+
+    // return sample appointment
+    requestContext.complete(Appointment(Some("12"), "2", "3", "2013-12-23"))
   }
+
+  def createAppointment(appointment: Appointment) = {
+    import com.sml.apigw.protocols.AppointmentProtocol._
+
+//    val pipeline = sendReceive
+//
+//    val response = pipeline {
+//      Post("http://10.2.2.132:7000/api/v1/appointments/", appointment)
+//    }
+//
+//    response.onComplete {
+//      case Success(_) =>
+//        logger.debug("user created")
+//        requestContext.complete(StatusCodes.Created -> "created")
+//      case Failure(e) =>
+//        logger.error(e.toString)
+//        requestContext.complete(e)
+//    }
+
+    // return sample response
+    requestContext.complete(StatusCodes.Created -> "created")
+  }
+
 }
