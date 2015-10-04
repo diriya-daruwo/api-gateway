@@ -61,15 +61,15 @@ trait GatewayService extends HttpService with SLF4JLogging {
           }
         } ~
         path("users") {
-          import com.sml.apigw.protocols.SmlUserProtocol._
+          import com.sml.apigw.protocols.UserProtocol._
           get { requestContext =>
             val userService = actorRefFactory.actorOf(Props(new UserService(requestContext)))
             userService ! GetUsers()
           } ~
             post {
-              entity(as[SmlUser]) { smlUser => requestContext =>
+              entity(as[User]) { user => requestContext =>
                 val userService = actorRefFactory.actorOf(Props(new UserService(requestContext)))
-                userService ! CreateUser(smlUser)
+                userService ! CreateUser(user)
               }
             }
         } ~

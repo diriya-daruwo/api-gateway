@@ -1,7 +1,7 @@
 package com.sml.apigw.services
 
 import akka.actor.{Actor, ReceiveTimeout}
-import com.sml.apigw.protocols.{SmlUser, SmlUserResponse}
+import com.sml.apigw.protocols.{User, UserResponse}
 import org.slf4j.LoggerFactory
 import spray.client.UnsuccessfulResponseException
 import spray.client.pipelining._
@@ -16,7 +16,7 @@ case class GetUsers()
 
 case class GetUser(id: Int)
 
-case class CreateUser(smlUser: SmlUser)
+case class CreateUser(user: User)
 
 /**
  * Actor class which deals with smluser service
@@ -40,10 +40,10 @@ class UserService(requestContext: RequestContext) extends Actor {
       logger.debug(s"Received request for user $id")
       context.setReceiveTimeout(60 seconds)
       getUser(id)
-    case CreateUser(smlUser) =>
+    case CreateUser(user) =>
       logger.debug("Received request for create user")
       context.setReceiveTimeout(60 seconds)
-      createUser(smlUser)
+      createUser(user)
     case ReceiveTimeout =>
       context.setReceiveTimeout(Duration.Undefined)
       logger.error("Timed out")
@@ -52,11 +52,11 @@ class UserService(requestContext: RequestContext) extends Actor {
   }
 
   def getUsers() = {
-    import com.sml.apigw.protocols.SmlUserProtocol._
+    import com.sml.apigw.protocols.UserProtocol._
 
-    val pipeline = sendReceive ~> unmarshal[SmlUserResponse]
+    val pipeline = sendReceive ~> unmarshal[UserResponse]
 
-    val response: Future[SmlUserResponse] = pipeline {
+    val response: Future[UserResponse] = pipeline {
       Get("http://10.2.2.132:9000/api/v1/users/?format=json")
     }
 
@@ -71,11 +71,11 @@ class UserService(requestContext: RequestContext) extends Actor {
   }
 
   def getUser(id: Int) = {
-    import com.sml.apigw.protocols.SmlUserProtocol._
+    import com.sml.apigw.protocols.UserProtocol._
 
-    val pipeline = sendReceive ~> unmarshal[SmlUser]
+    val pipeline = sendReceive ~> unmarshal[User]
 
-    val response: Future[SmlUser] = pipeline {
+    val response: Future[User] = pipeline {
       Get(s"http://10.2.2.132:9000/api/v1/users/$id/?format=json")
     }
 
@@ -93,13 +93,13 @@ class UserService(requestContext: RequestContext) extends Actor {
     }
   }
 
-  def createUser(smlUser: SmlUser) = {
-    import com.sml.apigw.protocols.SmlUserProtocol._
+  def createUser(user: User) = {
+    import com.sml.apigw.protocols.UserProtocol._
 
     val pipeline = sendReceive
 
     val response = pipeline {
-      Post("http://10.2.2.132:9000/api/v1/users/", smlUser)
+      Post("http://10.2.2.132:9000/api/v1/users/", user)
     }
 
     response.onComplete {
