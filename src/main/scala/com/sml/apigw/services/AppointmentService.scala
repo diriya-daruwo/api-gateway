@@ -70,8 +70,8 @@ class AppointmentService(requestContext: RequestContext) extends Actor with Conf
     //    }
 
     // Return sample response
-    val doctor = User(None, "eran@gmail.com", Some(3), "Comviq")
-    val patient = User(None, "pat@gmail.com", Some(4), "Saman")
+    val doctor = User(None, "eran@gmail.com", Some(3), "Comviq", "DO")
+    val patient = User(None, "pat@gmail.com", Some(4), "Saman", "PA")
     val b = Appointment(Some("12"), patient, doctor, "2013-12-23")
     val l = (b, b, b, b)
     requestContext.complete(l)
@@ -96,8 +96,8 @@ class AppointmentService(requestContext: RequestContext) extends Actor with Conf
     //    }
 
     // return sample appointment
-    val doctor = User(None, "eran@gmail.com", Some(3), "Comviq")
-    val patient = User(None, "pat@gmail.com", Some(4), "Saman")
+    val doctor = User(None, "eran@gmail.com", Some(3), "Comviq", "DO")
+    val patient = User(None, "pat@gmail.com", Some(4), "Saman", "PA")
     val appointment = Appointment(Some("12"), patient, doctor, "2013-12-23")
     requestContext.complete(appointment)
   }
