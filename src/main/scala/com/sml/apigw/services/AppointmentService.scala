@@ -12,9 +12,9 @@ import spray.httpx.SprayJsonSupport._
  */
 object AppointmentService {
 
-  case class Get()
+  case class GetAppointment()
 
-  case class Post(appointment: Appointment)
+  case class CreateAppointment(appointment: Appointment)
 
 }
 

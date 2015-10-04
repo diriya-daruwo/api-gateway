@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory
 import spray.client.UnsuccessfulResponseException
 import spray.client.pipelining._
 import spray.http._
-import spray.routing.HttpService
 import spray.routing.RequestContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -16,6 +15,8 @@ import spray.httpx.SprayJsonSupport._
 case class GetUsers()
 
 case class GetUser(id: Int)
+
+case class CreateUser(smlUser: SmlUser)
 
 /**
  * Actor class which deals with smluser service
@@ -32,13 +33,17 @@ class UserService(requestContext: RequestContext) extends Actor {
 
   override def receive = {
     case GetUsers() =>
-      logger.debug("Received request for users")
+      logger.debug("Received request for all users")
       context.setReceiveTimeout(60 seconds)
       getUsers()
     case GetUser(id) =>
-      logger.debug("Received request for users")
+      logger.debug(s"Received request for user $id")
       context.setReceiveTimeout(60 seconds)
       getUser(id)
+    case CreateUser(smlUser) =>
+      logger.debug("Received request for create user")
+      context.setReceiveTimeout(60 seconds)
+      createUser(smlUser)
     case ReceiveTimeout =>
       context.setReceiveTimeout(Duration.Undefined)
       logger.error("Timed out")
@@ -86,6 +91,25 @@ class UserService(requestContext: RequestContext) extends Actor {
             requestContext.complete("Error")
 
       }
+    }
+  }
+
+  def createUser(smlUser: SmlUser) = {
+    import com.sml.apigw.protocols.SmlUserProtocol._
+
+    val pipeline = sendReceive
+
+    val response = pipeline {
+      Post("http://10.2.2.132:9000/api/v1/users/", smlUser)
+    }
+
+    response.onComplete {
+      case Success(_) =>
+        logger.debug("user created")
+        requestContext.complete(StatusCodes.Created -> "created")
+      case Failure(e) =>
+        logger.error(e.toString)
+        requestContext.complete(e)
     }
   }
 }

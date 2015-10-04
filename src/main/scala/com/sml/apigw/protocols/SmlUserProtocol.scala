@@ -2,7 +2,7 @@ package com.sml.apigw.protocols
 
 import spray.json.DefaultJsonProtocol
 
-case class SmlUser(dob: Option[String], email: String, id: Int, name: String)
+case class SmlUser(dob: Option[String], email: String, id: Option[Int], name: String)
 
 case class SmlUserResponse(meta: Meta, objects: List[SmlUser])
 

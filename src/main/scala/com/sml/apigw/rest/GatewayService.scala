@@ -4,7 +4,8 @@ import akka.actor.{Props, Actor}
 import akka.event.slf4j.SLF4JLogging
 import akka.event.Logging
 import com.sml.apigw.protocols._
-import com.sml.apigw.services.{GetUser, GetUsers, UserService, DeviceService}
+import com.sml.apigw.services._
+import org.slf4j.LoggerFactory
 import spray.client.pipelining._
 import spray.http._
 import spray.routing.HttpService
@@ -35,6 +36,8 @@ trait GatewayService extends HttpService with SLF4JLogging {
   import spray.httpx.SprayJsonSupport._
 
   implicit def executionContext = actorRefFactory.dispatcher
+
+  val logger = LoggerFactory.getLogger(this.getClass().getName())
 
   val router =
     pathPrefix("api" / "v1") {
@@ -69,18 +72,15 @@ trait GatewayService extends HttpService with SLF4JLogging {
             }
         } ~
         path("users") {
-          import com.sml.apigw.protocols.UserProtocol._
+          import com.sml.apigw.protocols.SmlUserProtocol._
           get { requestContext =>
-            //val deviceService = actorRefFactory.actorOf(Props(new DeviceService(requestContext)))
-            //deviceService ! "GET"
             val userService = actorRefFactory.actorOf(Props(new UserService(requestContext)))
             userService ! GetUsers()
           } ~
             post {
-              entity(as[User]) { user =>
-                complete {
-                  StatusCodes.Created -> createUser(user)
-                }
+              entity(as[SmlUser]) { smlUser => requestContext =>
+                val userService = actorRefFactory.actorOf(Props(new UserService(requestContext)))
+                userService ! CreateUser(smlUser)
               }
             }
         } ~
@@ -91,6 +91,18 @@ trait GatewayService extends HttpService with SLF4JLogging {
           }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
   def getAppointments() = Future[List[Appointment]] {
     // TODO call for appointment service
@@ -135,10 +147,34 @@ trait GatewayService extends HttpService with SLF4JLogging {
     "created"
   }
 
-  def createUser(user: User) = Future[String] {
+  def createUser(user: SmlUser) = Future[String] {
+    import com.sml.apigw.protocols.SmlUserProtocol._
+
     // TODO call for user service to create User
-    "created"
+    println(user.name)
+    println(user.email)
+    println(user.id)
+
+    val pipeline = sendReceive
+
+    val response = pipeline {
+      Post("http://10.2.2.132:9000/api/v1/users/", user)
+    }
+
+    response.onComplete {
+      case Success(resp) =>
+        "created"
+      case Failure(e) =>
+        "fail"
+      case _ =>
+        "fail"
+    }
+
+    "success"
   }
+
+
+
 
 }
 
