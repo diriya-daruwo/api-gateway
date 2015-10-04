@@ -19,7 +19,7 @@ case class GetUser(id: Int)
 case class CreateUser(user: User)
 
 /**
- * Actor class which deals with smluser service
+ * Actor class which deals with user service
  * service endpoint: api/v1/users
  */
 class UserService(requestContext: RequestContext) extends Actor {
