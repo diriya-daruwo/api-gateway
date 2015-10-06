@@ -57,7 +57,7 @@ class UserService(requestContext: RequestContext) extends Actor {
     val pipeline = sendReceive ~> unmarshal[UserResponse]
 
     val response: Future[UserResponse] = pipeline {
-      Get("http://10.2.2.132:9000/api/v1/users/?format=json")
+      Get("http://192.168.1.20:9000/api/v1/users/?format=json")
     }
 
     response.onComplete {
@@ -76,7 +76,7 @@ class UserService(requestContext: RequestContext) extends Actor {
     val pipeline = sendReceive ~> unmarshal[User]
 
     val response: Future[User] = pipeline {
-      Get(s"http://10.2.2.132:9000/api/v1/users/$id/?format=json")
+      Get(s"http://192.168.1.20:9000/api/v1/users/$id/?format=json")
     }
 
     response.onComplete {
@@ -99,7 +99,7 @@ class UserService(requestContext: RequestContext) extends Actor {
     val pipeline = sendReceive
 
     val response = pipeline {
-      Post("http://10.2.2.132:9000/api/v1/users/", user)
+      Post("http://192.168.1.20:9000/api/v1/users/", user)
     }
 
     response.onComplete {
